@@ -1,0 +1,8 @@
+******** Order Backup ********
+Item No	Menu Item		Quantity	Price
+112	Bacon and Egg		10		$24.50
+
+Subtotal (Total Sale Price): $24.50
+Tax (5%): $1.23
+Final Total: $25.73
+Total Items Ordered: 10

@@ -1,5 +1,7 @@
 #include <iostream>
 #include <fstream>
+#include <sstream>
+#include <ctime>
 #include <iomanip>
 using namespace std;
 
@@ -15,7 +17,17 @@ void loadMenuFromFile(MenuItem menu[], int& size);
 void showMenu(const MenuItem menu[], int size);
 float takeOrder(const MenuItem menu[], int size, int selectedItems[], int itemCounts[], int& itemCount);
 void printInvoice(float subtotal, const MenuItem menu[], const int selectedItems[], const int itemCounts[], int itemCount);
+// void saveOrderToFile(float subtotal, const MenuItem menu[], const int selectedItems[], const int itemCounts[], int itemCount);
+
+// Function to generate a timestamp-based filename
+std::string generateTimestampFilename();
+
+// Function to save the order to a unique file
 void saveOrderToFile(float subtotal, const MenuItem menu[], const int selectedItems[], const int itemCounts[], int itemCount);
+
+// Function to update cumulative totals in a master file
+void updateCumulativeTotals(float subtotal, float tax, float total);
+
 
 int main() {
     const int maxMenuSize = 50; // Maximum number of items in the menu
@@ -161,9 +173,63 @@ void printInvoice(float subtotal, const MenuItem menu[], const int selectedItems
     cout << "*******************************\n";
 }
 
-// Function to save the order to a file
+// // Function to save the order to a file
+// void saveOrderToFile(float subtotal, const MenuItem menu[], const int selectedItems[], const int itemCounts[], int itemCount) {
+//     ofstream file("order_backup.txt");
+//     if (!file) {
+//         cerr << "Error: Could not save the order to file.\n";
+//         return;
+//     }
+
+//     float tax = subtotal * 0.05; // 5% tax
+//     float total = subtotal + tax;
+//     int totalItemCount = 0; // To track total items ordered
+
+//     file << "******** Order Backup ********\n";
+//     file << "Item No\tMenu Item\t\tQuantity\tPrice\n";
+
+//     for (int i = 0; i < itemCount; i++) {
+//         for (int j = 0; j < 50; j++) {
+//             if (menu[j].itemNo == selectedItems[i]) {
+//                 file << menu[j].itemNo << "\t" << menu[j].itemName 
+//                      << "\t\t" << itemCounts[i] 
+//                      << "\t\t$" << fixed << setprecision(2) << menu[j].price * itemCounts[i] << endl;
+//                 totalItemCount += itemCounts[i]; // Add item quantity to total count
+//                 break;
+//             }
+//         }
+//     }
+
+//     file << "\nSubtotal (Total Sale Price): $" << fixed << setprecision(2) << subtotal << endl;
+//     file << "Tax (5%): $" << fixed << setprecision(2) << tax << endl;
+//     file << "Final Total: $" << fixed << setprecision(2) << total << endl;
+//     file << "Total Items Ordered: " << totalItemCount << endl; // Total items count
+//     file.close();
+
+//     cout << "Order saved to order_backup.txt successfully!\n";
+// }
+
+
+// Helper function to generate a timestamp-based filename
+string generateTimestampFilename() {
+    time_t now = time(0);
+    tm *ltm = localtime(&now);
+
+    stringstream ss;
+    ss << "order_" << 1900 + ltm->tm_year << "_" 
+       << 1 + ltm->tm_mon << "_" 
+       << ltm->tm_mday << "_"
+       << ltm->tm_hour << "_" 
+       << ltm->tm_min << "_" 
+       << ltm->tm_sec << ".txt";
+
+    return ss.str();
+}
+
+// Function to save the order to a unique file
 void saveOrderToFile(float subtotal, const MenuItem menu[], const int selectedItems[], const int itemCounts[], int itemCount) {
-    ofstream file("order_backup.txt");
+    string fileName = generateTimestampFilename();
+    ofstream file(fileName);
     if (!file) {
         cerr << "Error: Could not save the order to file.\n";
         return;
@@ -194,5 +260,38 @@ void saveOrderToFile(float subtotal, const MenuItem menu[], const int selectedIt
     file << "Total Items Ordered: " << totalItemCount << endl; // Total items count
     file.close();
 
-    cout << "Order saved to order_backup.txt successfully!\n";
+    cout << "Order saved to " << fileName << " successfully!\n";
+
+    // Update cumulative totals
+    updateCumulativeTotals(subtotal, tax, total);
+}
+
+// Function to update cumulative totals in a master file
+void updateCumulativeTotals(float subtotal, float tax, float total) {
+    const string cumulativeFileName = "cumulative_totals.txt";
+    float totalSales = 0.0, totalTax = 0.0, grandTotal = 0.0;
+
+    // Read existing totals from the cumulative file
+    ifstream inFile(cumulativeFileName);
+    if (inFile) {
+        inFile >> totalSales >> totalTax >> grandTotal;
+    }
+    inFile.close();
+
+    // Update totals
+    totalSales += subtotal;
+    totalTax += tax;
+    grandTotal += total;
+
+    // Write updated totals back to the cumulative file
+    ofstream outFile(cumulativeFileName);
+    if (!outFile) {
+        cerr << "Error: Could not update cumulative totals file.\n";
+        return;
+    }
+
+    outFile << fixed << setprecision(2) << totalSales << " " << totalTax << " " << grandTotal;
+    outFile.close();
+
+    cout << "Cumulative totals updated successfully!\n";
 }
