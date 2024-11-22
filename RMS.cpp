@@ -1,4 +1,5 @@
 #include <iostream>
+#include <fstream>
 #include <iomanip>
 using namespace std;
 
@@ -10,22 +11,24 @@ struct MenuItem {
 };
 
 // Function prototypes
-void loadMenu(MenuItem menu[], int size);
+void loadMenuFromFile(MenuItem menu[], int& size);
 void showMenu(const MenuItem menu[], int size);
 float takeOrder(const MenuItem menu[], int size, int selectedItems[], int itemCounts[], int& itemCount);
 void printInvoice(float subtotal, const MenuItem menu[], const int selectedItems[], const int itemCounts[], int itemCount);
+void saveOrderToFile(float subtotal, const MenuItem menu[], const int selectedItems[], const int itemCounts[], int itemCount);
 
 int main() {
-    const int menuSize = 8; // Number of items in the menu
-    const int maxOrders = 50; // Maximum number of items a customer can order
-    MenuItem menu[menuSize]; // Array to store menu items
+    const int maxMenuSize = 50; // Maximum number of items in the menu
+    const int maxOrders = 50;  // Maximum number of items a customer can order
+    MenuItem menu[maxMenuSize]; // Array to store menu items
     int selectedItems[maxOrders]; // Array to store selected item numbers
     int itemCounts[maxOrders];    // Array to store counts of each selected item
+    int menuSize = 0; // Actual number of items in the menu
     int itemCount = 0; // Counter for selected items
     float subtotal = 0.0; // Total amount before tax
 
-    // Load menu items
-    loadMenu(menu, menuSize);
+    // Load menu items from file
+    loadMenuFromFile(menu, menuSize);
 
     // Main program loop
     int choice;
@@ -47,6 +50,7 @@ int main() {
                 break;
             case 3:
                 printInvoice(subtotal, menu, selectedItems, itemCounts, itemCount);
+                saveOrderToFile(subtotal, menu, selectedItems, itemCounts, itemCount);
                 break;
             case 4:
                 cout << "Exiting the system. Thank you for visiting Meal Hut!\n";
@@ -59,16 +63,21 @@ int main() {
     return 0;
 }
 
-// Function to load menu items into the array
-void loadMenu(MenuItem menu[], int size) {
-    menu[0] = {111, "Plain Egg", 1.45};
-    menu[1] = {112, "Bacon and Egg", 2.45};
-    menu[2] = {113, "Muffin     ", 0.99};
-    menu[3] = {114, "French Toast", 1.99};
-    menu[4] = {115, "Fruit Basket", 2.49};
-    menu[5] = {116, "Cereal     ", 0.69};
-    menu[6] = {117, "Coffee     ", 0.50};
-    menu[7] = {118, "Tea        ", 0.75};
+// Function to load menu items from a file
+void loadMenuFromFile(MenuItem menu[], int& size) {
+    ifstream file("menu.txt");
+    if (!file) {
+        cerr << "Error: Could not open menu file.\n";
+        exit(1);
+    }
+    size = 0;
+    while (file >> menu[size].itemNo) {
+        file.ignore(); // Ignore the space after the item number
+        getline(file, menu[size].itemName, ','); // Read the item name up to the comma
+        file >> menu[size].price;
+        size++;
+    }
+    file.close();
     cout << "Menu items loaded successfully!\n";
 }
 
@@ -133,7 +142,7 @@ void printInvoice(float subtotal, const MenuItem menu[], const int selectedItems
     cout << "Item No\tMenu Item\t\tQuantity\tPrice\n";
 
     for (int i = 0; i < itemCount; i++) {
-        for (int j = 0; j < 8; j++) {
+        for (int j = 0; j < 50; j++) {
             if (menu[j].itemNo == selectedItems[i]) {
                 cout << menu[j].itemNo << "\t" << menu[j].itemName 
                      << "\t\t" << itemCounts[i] 
@@ -147,4 +156,37 @@ void printInvoice(float subtotal, const MenuItem menu[], const int selectedItems
     cout << "Tax (5%): $" << fixed << setprecision(2) << tax << endl;
     cout << "Total: $" << fixed << setprecision(2) << total << endl;
     cout << "*******************************\n";
+}
+
+// Function to save the order to a file
+void saveOrderToFile(float subtotal, const MenuItem menu[], const int selectedItems[], const int itemCounts[], int itemCount) {
+    ofstream file("order_backup.txt");
+    if (!file) {
+        cerr << "Error: Could not save the order to file.\n";
+        return;
+    }
+
+    float tax = subtotal * 0.05; // 5% tax
+    float total = subtotal + tax;
+
+    file << "******** Order Backup ********\n";
+    file << "Item No\tMenu Item\t\tQuantity\tPrice\n";
+
+    for (int i = 0; i < itemCount; i++) {
+        for (int j = 0; j < 50; j++) {
+            if (menu[j].itemNo == selectedItems[i]) {
+                file << menu[j].itemNo << "\t" << menu[j].itemName 
+                     << "\t\t" << itemCounts[i] 
+                     << "\t\t$" << fixed << setprecision(2) << menu[j].price * itemCounts[i] << endl;
+                break;
+            }
+        }
+    }
+
+    file << "\nSubtotal: $" << fixed << setprecision(2) << subtotal << endl;
+    file << "Tax (5%): $" << fixed << setprecision(2) << tax << endl;
+    file << "Total: $" << fixed << setprecision(2) << total << endl;
+    file.close();
+
+    cout << "Order saved to order_backup.txt successfully!\n";
 }

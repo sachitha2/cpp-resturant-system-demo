@@ -1,0 +1,8 @@
+111 Plain Egg,1.45
+112 Bacon and Egg,2.45
+113 Muffin,0.99
+114 French Toast,1.99
+115 Fruit Basket,2.49
+116 Cereal,0.69
+117 Coffee,0.50
+118 Tea,0.75

@@ -1,0 +1,11 @@
+******** Order Backup ********
+Item No	Menu Item		Quantity	Price
+111	Plain Egg		5		$7.25
+112	Bacon and Egg		5		$12.25
+114	French Toast		4		$7.96
+115	Fruit Basket		4		$9.96
+111	Plain Egg		1		$1.45
+
+Subtotal: $1.45
+Tax (5%): $0.07
+Total: $1.52
