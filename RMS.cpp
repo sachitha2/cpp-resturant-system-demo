@@ -25,8 +25,6 @@ std::string generateTimestampFilename();
 // Save the order to a unique file -> time stamp-base file
 void saveOrderToFile(float subtotal, const MenuItem menu[], const int selectedItems[], const int itemCounts[], int itemCount);
 
-// Update Final totals in a master file -> cumulative_totals.txt
-void updateCumulativeTotals(float subtotal, float tax, float total);
 
 
 int main() {
@@ -118,7 +116,6 @@ void showMenu(const MenuItem menu[], int size) {
     }
 }
 
-// Function to take orders from the user
 float takeOrder(const MenuItem menu[], int size, int selectedItems[], int itemCounts[], int& itemCount) {
     // Remove old order data by resetting itemCount
     itemCount = 0; // Reset itemCount to start fresh for the new order
@@ -130,14 +127,38 @@ float takeOrder(const MenuItem menu[], int size, int selectedItems[], int itemCo
     while (true) {
         cout << "Enter Item Number: ";
         cin >> itemNo;
+
+        // Validate user input for item number
+        if (cin.fail()) {
+            cin.clear();                  // Reset the input stream
+            cin.ignore(1000, '\n');       // Discard invalid input
+            cout << "Invalid input! Please enter a valid item number.\n";
+            continue;
+        }
+
         if (itemNo == -1) break; // Stop when user enters -1
 
         bool validItem = false;
         for (int i = 0; i < size; i++) {
             if (menu[i].itemNo == itemNo) {
-                cout << "Enter Quantity: ";
-                cin >> quantity;
+                validItem = true;
 
+                // Repeatedly prompt for a valid quantity
+                while (true) {
+                    cout << "Enter Quantity: ";
+                    cin >> quantity;
+
+                    // Validate user input for quantity
+                    if (cin.fail() || quantity <= 0) {
+                        cin.clear();                  // Reset the input stream
+                        cin.ignore(1000, '\n');       // Discard invalid input
+                        cout << "Invalid quantity! Please enter a positive number.\n";
+                        continue; // Prompt for quantity again
+                    }
+                    break; // Exit the loop if quantity is valid
+                }
+
+                // Add the item to the order
                 subtotal += menu[i].price * quantity;
                 selectedItems[itemCount] = itemNo;  // Add item number to the selected list
                 itemCounts[itemCount] = quantity;  // Add quantity for the selected item
@@ -145,7 +166,6 @@ float takeOrder(const MenuItem menu[], int size, int selectedItems[], int itemCo
 
                 cout << "Added: " << menu[i].itemName << " x" << quantity 
                      << " - $" << fixed << setprecision(2) << menu[i].price * quantity << endl;
-                validItem = true;
                 break;
             }
         }
@@ -187,42 +207,6 @@ void printInvoice(float subtotal, const MenuItem menu[], const int selectedItems
     cout << "Total: $" << fixed << setprecision(2) << total << endl;
     cout << "*******************************\n";
 }
-
-// // Function to save the order to a file
-// void saveOrderToFile(float subtotal, const MenuItem menu[], const int selectedItems[], const int itemCounts[], int itemCount) {
-//     ofstream file("order_backup.txt");
-//     if (!file) {
-//         cerr << "Error: Could not save the order to file.\n";
-//         return;
-//     }
-
-//     float tax = subtotal * 0.05; // 5% tax
-//     float total = subtotal + tax;
-//     int totalItemCount = 0; // To track total items ordered
-
-//     file << "******** Order Backup ********\n";
-//     file << "Item No\tMenu Item\t\tQuantity\tPrice\n";
-
-//     for (int i = 0; i < itemCount; i++) {
-//         for (int j = 0; j < 50; j++) {
-//             if (menu[j].itemNo == selectedItems[i]) {
-//                 file << menu[j].itemNo << "\t" << menu[j].itemName 
-//                      << "\t\t" << itemCounts[i] 
-//                      << "\t\t$" << fixed << setprecision(2) << menu[j].price * itemCounts[i] << endl;
-//                 totalItemCount += itemCounts[i]; // Add item quantity to total count
-//                 break;
-//             }
-//         }
-//     }
-
-//     file << "\nSubtotal (Total Sale Price): $" << fixed << setprecision(2) << subtotal << endl;
-//     file << "Tax (5%): $" << fixed << setprecision(2) << tax << endl;
-//     file << "Final Total: $" << fixed << setprecision(2) << total << endl;
-//     file << "Total Items Ordered: " << totalItemCount << endl; // Total items count
-//     file.close();
-
-//     cout << "Order saved to order_backup.txt successfully!\n";
-// }
 
 
 // Helper function to generate a timestamp-based filename
@@ -277,36 +261,4 @@ void saveOrderToFile(float subtotal, const MenuItem menu[], const int selectedIt
 
     cout << "Order saved to " << fileName << " successfully!\n";
 
-    // Update cumulative totals
-    updateCumulativeTotals(subtotal, tax, total);
-}
-
-// Function to update cumulative totals in a master file
-void updateCumulativeTotals(float subtotal, float tax, float total) {
-    const string cumulativeFileName = "cumulative_totals.txt";
-    float totalSales = 0.0, totalTax = 0.0, grandTotal = 0.0;
-
-    // Read existing totals from the cumulative file
-    ifstream inFile(cumulativeFileName);
-    if (inFile) {
-        inFile >> totalSales >> totalTax >> grandTotal;
-    }
-    inFile.close();
-
-    // Update totals
-    totalSales += subtotal;
-    totalTax += tax;
-    grandTotal += total;
-
-    // Write updated totals back to the cumulative file
-    ofstream outFile(cumulativeFileName);
-    if (!outFile) {
-        cerr << "Error: Could not update cumulative totals file.\n";
-        return;
-    }
-
-    outFile << fixed << setprecision(2) << totalSales << " " << totalTax << " " << grandTotal;
-    outFile.close();
-
-    cout << "Cumulative totals updated successfully!\n";
 }

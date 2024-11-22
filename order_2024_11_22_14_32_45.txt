@@ -1,0 +1,8 @@
+******** Order Backup ********
+Item No	Menu Item		Quantity	Price
+111	Plain Egg		90		$130.50
+
+Subtotal (Total Sale Price): $130.50
+Tax (5%): $6.53
+Final Total: $137.02
+Total Items Ordered: 90
