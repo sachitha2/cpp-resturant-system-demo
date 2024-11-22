@@ -108,7 +108,8 @@ void loadMenuFromFile(MenuItem menu[], int& size) {
 
 // Function to display the menu
 void showMenu(const MenuItem menu[], int size) {
-    cout << "\n******** Meal Hut Menu ********\n";
+    cout << "\n******** Welcome to Meal Hut ********\n";
+    cout << "\n       Breakfast Billing System      \n";
     cout << "Item No\tMenu Item\t\tPrice\n";
     for (int i = 0; i < size; i++) {
         cout << menu[i].itemNo << "\t" << menu[i].itemName 
