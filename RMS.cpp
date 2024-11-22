@@ -5,11 +5,11 @@
 #include <iomanip>
 using namespace std;
 
-// Structure to hold menu items
+// Structure for menu items
 struct MenuItem {
-    int itemNo;        // Item number
-    string itemName;   // Item name
-    float price;       // Item price
+    int itemNo;        
+    string itemName;   
+    float price;       
 };
 
 // Function prototypes
@@ -17,21 +17,21 @@ void loadMenuFromFile(MenuItem menu[], int& size);
 void showMenu(const MenuItem menu[], int size);
 float takeOrder(const MenuItem menu[], int size, int selectedItems[], int itemCounts[], int& itemCount);
 void printInvoice(float subtotal, const MenuItem menu[], const int selectedItems[], const int itemCounts[], int itemCount);
-// void saveOrderToFile(float subtotal, const MenuItem menu[], const int selectedItems[], const int itemCounts[], int itemCount);
 
-// Function to generate a timestamp-based filename
+
+// Generate a timestamp-based filename
 std::string generateTimestampFilename();
 
-// Function to save the order to a unique file
+// Save the order to a unique file -> time stamp-base file
 void saveOrderToFile(float subtotal, const MenuItem menu[], const int selectedItems[], const int itemCounts[], int itemCount);
 
-// Function to update cumulative totals in a master file
+// Update Final totals in a master file -> cumulative_totals.txt
 void updateCumulativeTotals(float subtotal, float tax, float total);
 
 
 int main() {
     const int maxMenuSize = 50; // Maximum number of items in the menu
-    const int maxOrders = 50;  // Maximum number of items a customer can order
+    const int maxOrders = 20;  // Maximum number of items a customer can order
     MenuItem menu[maxMenuSize]; // Array to store menu items
     int selectedItems[maxOrders]; // Array to store selected item numbers
     int itemCounts[maxOrders];    // Array to store counts of each selected item
@@ -39,10 +39,10 @@ int main() {
     int itemCount = 0; // Counter for selected items
     float subtotal = 0.0; // Total amount before tax
 
-    // Load menu items from file
+    // Load menu items from file -> menu.txt
     loadMenuFromFile(menu, menuSize);
 
-    // Main program loop
+    // Main loop
     int choice;
     do {
         cout << "\n******** Welcome to Meal Hut ********\n";
@@ -52,6 +52,21 @@ int main() {
         cout << "4. Exit\n";
         cout << "Enter your choice: ";
         cin >> choice;
+
+        // Validate user input
+        // Validate user input
+        if (cin.fail()) {
+            cin.clear();                  // Reset the input stream
+            cin.ignore(1000, '\n');       // Discard invalid input
+            cout << "Invalid input! Please enter a number between 1 and 4.\n";
+            continue;                     // Restart the loop
+        }
+
+         // Check if the input is out of range
+        if (choice < 1 || choice > 4) {
+            cout << "Invalid choice! Please enter a number between 1 and 4.\n";
+            continue;                     // Restart the loop
+        }
 
         switch (choice) {
             case 1:
