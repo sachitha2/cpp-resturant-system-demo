@@ -93,6 +93,9 @@ void showMenu(const MenuItem menu[], int size) {
 
 // Function to take orders from the user
 float takeOrder(const MenuItem menu[], int size, int selectedItems[], int itemCounts[], int& itemCount) {
+    // Remove old order data by resetting itemCount
+    itemCount = 0; // Reset itemCount to start fresh for the new order
+    
     int itemNo, quantity;
     float subtotal = 0.0;
 
@@ -168,6 +171,7 @@ void saveOrderToFile(float subtotal, const MenuItem menu[], const int selectedIt
 
     float tax = subtotal * 0.05; // 5% tax
     float total = subtotal + tax;
+    int totalItemCount = 0; // To track total items ordered
 
     file << "******** Order Backup ********\n";
     file << "Item No\tMenu Item\t\tQuantity\tPrice\n";
@@ -178,14 +182,16 @@ void saveOrderToFile(float subtotal, const MenuItem menu[], const int selectedIt
                 file << menu[j].itemNo << "\t" << menu[j].itemName 
                      << "\t\t" << itemCounts[i] 
                      << "\t\t$" << fixed << setprecision(2) << menu[j].price * itemCounts[i] << endl;
+                totalItemCount += itemCounts[i]; // Add item quantity to total count
                 break;
             }
         }
     }
 
-    file << "\nSubtotal: $" << fixed << setprecision(2) << subtotal << endl;
+    file << "\nSubtotal (Total Sale Price): $" << fixed << setprecision(2) << subtotal << endl;
     file << "Tax (5%): $" << fixed << setprecision(2) << tax << endl;
-    file << "Total: $" << fixed << setprecision(2) << total << endl;
+    file << "Final Total: $" << fixed << setprecision(2) << total << endl;
+    file << "Total Items Ordered: " << totalItemCount << endl; // Total items count
     file.close();
 
     cout << "Order saved to order_backup.txt successfully!\n";
