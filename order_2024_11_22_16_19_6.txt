@@ -1,8 +1,0 @@
-******** Order Backup ********
-Item No	Menu Item		Quantity	Price
-111	Plain Egg		10		$14.50
-
-Subtotal (Total Sale Price): $14.50
-Tax (5%): $0.73
-Final Total: $15.23
-Total Items Ordered: 10

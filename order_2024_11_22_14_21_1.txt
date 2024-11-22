@@ -1,8 +1,0 @@
-******** Order Backup ********
-Item No	Menu Item		Quantity	Price
-118	Tea		100		$75.00
-
-Subtotal (Total Sale Price): $75.00
-Tax (5%): $3.75
-Final Total: $78.75
-Total Items Ordered: 100
